@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1-crypto-js.js"></script>
+</head>
+<body>
+    <h1>Register a New Customer</h1>
+    <form id="registerForm">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="email_confirm">Confirm Email:</label><br>
+        <input type="email" id="email_confirm" name="email_confirm" required><br><br>
+
+        <label for="phone">Phone:</label><br>
+        <input type="tel" id="phone" name="phone" required><br><br>
+
+        <label for="address">Address:</label><br>
+        <input type="text" id="address" name="address" required><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="password_confirm">Confirm Password:</label><br>
+        <input type="password" id="password_confirm" name="password_confirm" required><br><br>
+
+        <input type="submit" value="Register">
+    </form>
+
+    <script>
+        document.getElementById("registerForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent form from submitting traditionally
+
+            // Get values from the form
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const emailConfirm = document.getElementById("email_confirm").value;
+            const phone = document.getElementById("phone").value;
+            const address = document.getElementById("address").value;
+            const password = document.getElementById("password").value;
+            const passwordConfirm = document.getElementById("password_confirm").value;
+
+            // Check if emails and passwords match
+            if (email !== emailConfirm) {
+                alert("Emails do not match!");
+                return;
+            }
+            if (password !== passwordConfirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Hash the password using SHA-256
+            const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Base64);
+
+            // Create the JSON data object
+            const data = {
+                name: name,
+                email: email,
+                phone: phone,
+                address: address,
+                password: hashedPassword
+            };
+
+            // Send the data to the server via a JSON POST request
+            fetch("/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Registration successful!");
+                } else {
+                    alert("Registration failed.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred while processing your request.");
+            });
+        });
+    </script>
+</body>
+</html>
